@@ -24,6 +24,8 @@
 
 #include "types/registerTypes.hpp"
 
+#include "meta/MutatableComponent.hpp"
+
 int main(int, char ** av) {
 	putils::goToBinDir(av[0]);
 
@@ -34,7 +36,12 @@ int main(int, char ** av) {
 	kengine::init(std::thread::hardware_concurrency());
 
 	registerTypes();
-	
+
+	auto transformComponent = kengine::typeHelper::getTypeEntity<kengine::TransformComponent>();
+	transformComponent += meta::MutatableComponent{
+		{ "boundingBox.size" }
+	};
+
 	kengine::entities += kengine::LogStdoutSystem();
 	kengine::entities += kengine::ModelCreatorSystem();
 	kengine::entities += kengine::SFMLSystem();
