@@ -6,6 +6,10 @@ if(WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /std:c++20 /DNOMINMAX")
 endif()
 
+add_compile_definitions(
+    KENGINE_COMPONENT_COUNT=256
+)
+
 set(libdir "${PROJECT_SOURCE_DIR}/lib")
 set(bindir "${PROJECT_SOURCE_DIR}/bin")
 
