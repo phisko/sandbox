@@ -1,4 +1,3 @@
-#include <imgui.h>
 #include <thread>
 
 #include "go_to_bin_dir.hpp"
@@ -18,6 +17,8 @@
 #include "helpers/registerTypeHelper.hpp"
 #include "helpers/MainLoop.hpp"
 
+#include "systems/imgui_adjustable/ImGuiAdjustableSystem.hpp"
+#include "systems/imgui_tool/ImGuiToolSystem.hpp"
 #include "systems/log_stdout/LogStdoutSystem.hpp"
 #include "systems/model_creator/ModelCreatorSystem.hpp"
 #include "systems/sfml/SFMLSystem.hpp"
@@ -42,7 +43,10 @@ int main(int, char ** av) {
 		{ "boundingBox.size" }
 	};
 
+	kengine::entities += kengine::ImGuiAdjustableSystem();
+	kengine::entities += kengine::ImGuiToolSystem();
 	kengine::entities += kengine::LogStdoutSystem();
+
 	kengine::entities += kengine::ModelCreatorSystem();
 	kengine::entities += kengine::SFMLSystem();
 
