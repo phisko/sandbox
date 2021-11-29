@@ -3,6 +3,7 @@
 
 #include "go_to_bin_dir.hpp"
 #include "kengine.hpp"
+#include "PluginManager.hpp"
 
 #include "data/CameraComponent.hpp"
 #include "data/DebugGraphicsComponent.hpp"
@@ -37,6 +38,9 @@ int main(int, char ** av) {
 	kengine::entities += kengine::LogStdoutSystem();
 	kengine::entities += kengine::ModelCreatorSystem();
 	kengine::entities += kengine::SFMLSystem();
+
+	putils::PluginManager pm;
+	pm.rescanDirectory("plugins", "loadKenginePlugin", kengine::getState());
 
 	kengine::entities += [](kengine::Entity & window) {
 		window += kengine::WindowComponent{
