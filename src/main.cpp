@@ -27,7 +27,54 @@
 
 #include "types/registerTypes.hpp"
 
-#include "meta/MutatableComponent.hpp"
+#include "meta/GenomeComponent.hpp"
+#include "data/ReproductionComponent.hpp"
+
+static void setupGenome() noexcept {
+	using kengine::typeHelper::getTypeEntity;
+
+	getTypeEntity<kengine::TransformComponent>() += meta::GenomeComponent{
+		.attributes = {
+			{
+				.name = "boundingBox.size",
+				.mutate = [](void * attribute, size_t, const meta::GenomeComponent::Mutator & mutator) noexcept {
+					const auto size = (putils::Point3f *)attribute;
+					size_t intSize[] = { (size_t)size->x, (size_t)size->y, (size_t)size->z };
+					mutator(intSize, sizeof(intSize));
+					for (size_t i = 0; i < 3; ++i)
+						(*size)[i] = intSize[i] + std::floor((*size)[i]);
+				}
+			}
+		}
+	};
+
+	getTypeEntity<kengine::GraphicsComponent>() += meta::GenomeComponent{
+		.attributes = {
+			{
+				.name = "color",
+				.mutate = [](void * attribute, size_t size, const meta::GenomeComponent::Mutator & mutator) noexcept {
+					const auto color = (putils::NormalizedColor *)attribute;
+					putils::Color mutatable(toColor(*color));
+					mutator(&mutatable, sizeof(mutatable));
+					*color = toNormalizedColor(mutatable);
+				}
+			}
+		}
+	};
+}
+
+static void Window(kengine::Entity & e) {
+	e += kengine::NameComponent{ "Window" };
+	e += kengine::WindowComponent{
+		.name = "Sandbox"
+	};
+	e += kengine::CameraComponent{
+		.frustum = {
+			.size = {16.f, 9.f, 0.f}
+		}
+	};
+	e += kengine::ViewportComponent{};
+}
 
 int main(int, char ** av) {
 	putils::goToBinDir(av[0]);
@@ -39,11 +86,7 @@ int main(int, char ** av) {
 	kengine::init(std::thread::hardware_concurrency());
 
 	registerTypes();
-
-	auto transformComponent = kengine::typeHelper::getTypeEntity<kengine::TransformComponent>();
-	transformComponent += meta::MutatableComponent{
-		{ "boundingBox.size" }
-	};
+	setupGenome();
 
 	kengine::entities += kengine::ImGuiAdjustableSystem();
 	kengine::entities += kengine::ImGuiEntityEditorSystem();
@@ -57,56 +100,39 @@ int main(int, char ** av) {
 	putils::PluginManager pm;
 	pm.rescanDirectory("plugins", "loadKenginePlugin", kengine::getState());
 
-	kengine::entities += [](kengine::Entity & window) {
-		window += kengine::WindowComponent{
-			.name = "Sandbox"
+	kengine::entities += Window;
+
+	kengine::EntityID firstParentID;
+	kengine::entities += [&](kengine::Entity & firstParent) {
+		firstParentID = firstParent.id;
+
+		firstParent += kengine::NameComponent{ "First parent" };
+		firstParent += kengine::GraphicsComponent{
+			.appearance = "resources/textures/character.png",
+			.color = putils::NormalizedColor{1.f, 1.f, 0.f}
+		};
+		firstParent += kengine::TransformComponent{};
+	};
+
+	kengine::EntityID secondParentID;
+	kengine::entities += [&](kengine::Entity & secondParent) {
+		secondParentID = secondParent.id;
+
+		secondParent += kengine::NameComponent{ "Second parent" };
+		secondParent += kengine::GraphicsComponent{
+			.appearance = "resources/textures/character.png",
+			.color = putils::NormalizedColor{ 0.f, 0.5f, 0.5f }
+		};
+		secondParent += kengine::TransformComponent{
+			.boundingBox = {
+				.position = { 1.f, 1.f, 1.f },
+				.size = { 1.f, 1.f, 1.f }
+			}
 		};
 	};
 
-	kengine::entities += [](kengine::Entity & character) {
-		character += kengine::GraphicsComponent{ .appearance = "resources/textures/character.png" };
-
-		character += kengine::DebugGraphicsComponent{
-			.elements = {
-				{
-					.pos = { 0.f, -1.f, 1.f },
-					.color = { 1.f, 0.f, 0.f, .5f },
-					.type = kengine::DebugGraphicsComponent::Type::Box
-				},
-				{
-					.pos = { 0.f, 1.f, 1.f },
-					.color = { 0.f, 1.f, 0.f, 1.f },
-					.line = {.end = { 5.f, 5.f, 0.f }},
-					.type = kengine::DebugGraphicsComponent::Type::Line
-				},
-				{
-					.pos = { -1.f, 0.f, 1.f },
-					.color = { 0.f, 0.f, 1.f, 1.f },
-					.type = kengine::DebugGraphicsComponent::Type::Sphere
-				},
-			}
-		};
-
-		auto & transform = character.attach<kengine::TransformComponent>();
-		auto & camera = character.attach(kengine::CameraComponent{
-			.frustum = {
-				.size = {16.f, 9.f, 0.f}
-			}
-		});
-		character += kengine::ViewportComponent{};
-		
-		character += kengine::functions::Execute{
-			[id = character.id, &transform, &camera](float deltaTime) {
-				if (ImGui::Begin("Character")) {
-					auto e = kengine::entities[id];
-					kengine::imguiHelper::editEntity(e);
-				}
-				ImGui::End();
-
-				camera.frustum.position = transform.boundingBox.position;
-			}
-		};
-	};
+	kengine::entities[firstParentID] += ReproductionComponent{ .mate = secondParentID };
+	kengine::entities[secondParentID] += ReproductionComponent{ .mate = firstParentID };
 
 	kengine::mainLoop::timeModulated::run();
 
