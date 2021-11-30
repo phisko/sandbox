@@ -18,6 +18,8 @@
 #include "helpers/MainLoop.hpp"
 
 #include "systems/imgui_adjustable/ImGuiAdjustableSystem.hpp"
+#include "systems/imgui_entity_editor/ImGuiEntityEditorSystem.hpp"
+#include "systems/imgui_entity_selector/ImGuiEntitySelectorSystem.hpp"
 #include "systems/imgui_tool/ImGuiToolSystem.hpp"
 #include "systems/log_stdout/LogStdoutSystem.hpp"
 #include "systems/model_creator/ModelCreatorSystem.hpp"
@@ -44,6 +46,8 @@ int main(int, char ** av) {
 	};
 
 	kengine::entities += kengine::ImGuiAdjustableSystem();
+	kengine::entities += kengine::ImGuiEntityEditorSystem();
+	kengine::entities += kengine::ImGuiEntitySelectorSystem();
 	kengine::entities += kengine::ImGuiToolSystem();
 	kengine::entities += kengine::LogStdoutSystem();
 
