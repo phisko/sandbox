@@ -41,22 +41,21 @@ set(KENGINE_ALL_SYSTEMS TRUE)
 add_subdirectory(kengine)
 
 ## API
-add_library(api INTERFACE)
-target_include_directories(api INTERFACE common)
+putils_src_files(apiFiles
+	common
+	common/helpers)
+add_library(api STATIC ${apiFiles})
+target_link_libraries(api PUBLIC kengine)
+target_include_directories(api PUBLIC common)
 
 ## Executable
 
 set(exe_name sandbox)
 
-putils_src_files(exeFiles
-	src 
-	src/types 
-	src/components
-	src/gameobjects
-	src/systems)
+file(GLOB_RECURSE exeFiles src/*.cpp src/*.hpp src/*.inl)
 
 add_executable(${exe_name} ${exeFiles})
 target_include_directories(${exe_name} PRIVATE src)
-target_link_libraries(${exe_name} kengine api)
+target_link_libraries(${exe_name} api)
 
 add_subdirectory(plugins)
