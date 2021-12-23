@@ -3,7 +3,7 @@ project(sandbox)
 
 set(CMAKE_CXX_STANDARD 20)
 if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /std:c++20 /DNOMINMAX")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /std:c++20 /DNOMINMAX /MP8")
 endif()
 
 add_compile_definitions(
