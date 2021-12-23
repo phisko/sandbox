@@ -25,8 +25,6 @@
 #include "systems/model_creator/ModelCreatorSystem.hpp"
 #include "systems/sfml/SFMLSystem.hpp"
 
-#include "types/registerTypes.hpp"
-
 #include "meta/GenomeComponent.hpp"
 #include "data/ReproductionComponent.hpp"
 
@@ -85,7 +83,6 @@ int main(int, char ** av) {
 
 	kengine::init(std::thread::hardware_concurrency());
 
-	registerTypes();
 	setupGenome();
 
 	kengine::entities += kengine::ImGuiAdjustableSystem();
@@ -96,6 +93,8 @@ int main(int, char ** av) {
 
 	kengine::entities += kengine::ModelCreatorSystem();
 	kengine::entities += kengine::SFMLSystem();
+
+	kengine::types::registerTypes();
 
 	putils::PluginManager pm;
 	pm.rescanDirectory("plugins", "loadKenginePlugin", kengine::getState());
