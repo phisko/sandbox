@@ -2,11 +2,6 @@
 
 namespace meta {
     struct GenomeComponent {
-        struct MutatableBytes {
-            std::unique_ptr<void> data;
-            size_t size;
-        };
-
         using Mutator = std::function<void(void * data, size_t size)>;
         struct Attribute {
             std::string name;
