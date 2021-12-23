@@ -1,18 +1,22 @@
 #include "Baby.hpp"
 
+// kengine
 #include "data/GraphicsComponent.hpp"
 #include "data/NameComponent.hpp"
 #include "data/TransformComponent.hpp"
-
 #include "meta/Copy.hpp"
 #include "meta/Get.hpp"
 #include "meta/Has.hpp"
 #include "meta/Size.hpp"
-
 #include "helpers/meta/attributeHelper.hpp"
 
+// project
 #include "meta/GenomeComponent.hpp"
+#include "helpers/mutationHelper.hpp"
+
+// putils
 #include "BitFieldRef.hpp"
+#include "rand.hpp"
 
 namespace {
     void mixImpl(const void * src, void * dst, size_t size) noexcept {
@@ -68,5 +72,13 @@ void Baby::operator()(kengine::Entity & baby) const noexcept {
         }
         else if (has(secondParent))
             copy(secondParent, baby);
+        else
+            continue;
+
+        extern int g_minMutationCount;
+        extern int g_maxMutationCount;
+        const auto mutationCount = putils::rand(g_minMutationCount, g_maxMutationCount);
+        for (int i = 0; i < mutationCount; ++i)
+            mutationHelper::mutate(baby, type);
     }
 }
