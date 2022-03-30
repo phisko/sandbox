@@ -2,60 +2,59 @@ cmake_minimum_required(VERSION 3.10)
 project(sandbox)
 
 set(CMAKE_CXX_STANDARD 20)
-if(WIN32)
+if (MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /std:c++20 /DNOMINMAX /MP8")
+elseif(UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 endif()
 
-add_compile_definitions(
-    KENGINE_COMPONENT_COUNT=256
-)
-
-set(libdir "${PROJECT_SOURCE_DIR}/lib")
-set(bindir "${PROJECT_SOURCE_DIR}/bin")
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${libdir})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${libdir}/debug)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${libdir}/release)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO ${libdir}/relwithdebinfo)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL ${libdir}/minsizerel)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${bindir})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${bindir}/debug)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${bindir}/release)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${bindir}/relwithdebinfo)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${bindir}/minsizerel)
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${bindir}/plugins)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${bindir}/debug/plugins)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${bindir}/release/plugins)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${bindir}/relwithdebinfo/plugins)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL ${bindir}/minsizerel/plugins)
+add_compile_definitions(KENGINE_COMPONENT_COUNT=256)
 
 #
-# Actual project
+# Executable
 #
 
-## Kengine
+set(exe_name sandbox)
 
+file(GLOB exeFiles
+		src/*.cpp src/*.hpp src/*.inl)
+
+add_executable(${exe_name} ${exeFiles})
+target_include_directories(${exe_name} PRIVATE src)
+
+# set plugin dir
+set(runtime_dir $<TARGET_FILE_DIR:${exe_name}>)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${runtime_dir}/plugins)
+
+# copy resources
+add_custom_command(TARGET ${exe_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E
+		make_directory ${runtime_dir}/resources)
+add_custom_command(TARGET ${exe_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E
+		copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/resources ${runtime_dir}/resources)
+
+#
+# Kengine
+#
+
+set(KENGINE_BUILD_TESTS TRUE)
 set(KENGINE_ALL_SYSTEMS TRUE)
 add_subdirectory(kengine)
+#
+# API
+#
 
-## API
 putils_src_files(apiFiles
-	common
-	common/helpers)
+		common
+		common/helpers)
 add_library(api STATIC ${apiFiles})
 target_link_libraries(api PUBLIC kengine)
 target_include_directories(api PUBLIC common)
 
-## Executable
-
-set(exe_name sandbox)
-
-file(GLOB_RECURSE exeFiles src/*.cpp src/*.hpp src/*.inl)
-
-add_executable(${exe_name} ${exeFiles})
-target_include_directories(${exe_name} PRIVATE src)
+# link to exe
 target_link_libraries(${exe_name} api)
+
+#
+# Plugins
+#
 
 add_subdirectory(plugins)
