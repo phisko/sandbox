@@ -56,42 +56,42 @@ namespace {
         using kengine::typeHelper::getTypeEntity;
 
         getTypeEntity<kengine::GraphicsComponent>() += meta::GenomeComponent{
-                .attributes = {
-                        {
-                                .name = "color",
-                                .mutate = [](void *attribute, size_t size,
-                                             const meta::GenomeComponent::Mutator &mutator) noexcept {
-                                    const auto color = (putils::NormalizedColor *) attribute;
-                                    mutateColor(*color, mutator);
-                                }
-                        }
+            .attributes = {
+                {
+                    .name = "color",
+                    .mutate = [](void *attribute, size_t size,
+                                 const meta::GenomeComponent::Mutator &mutator) noexcept {
+                        const auto color = (putils::NormalizedColor *) attribute;
+                        mutateColor(*color, mutator);
+                    }
                 }
+            }
         };
 
         getTypeEntity<kengine::DebugGraphicsComponent>() += meta::GenomeComponent{
-                .attributes = {
-                        {
-                                .name = "elements",
-                                .mutate = [](void *attribute, size_t size,
-                                             const meta::GenomeComponent::Mutator &mutator) noexcept {
-                                    const auto elements = (std::vector<kengine::DebugGraphicsComponent::Element> *) attribute;
-                                    for (auto &element: *elements)
-                                        mutateColor(element.color, mutator);
-                                }
-                        }
+            .attributes = {
+                {
+                    .name = "elements",
+                    .mutate = [](void *attribute, size_t size,
+                                 const meta::GenomeComponent::Mutator &mutator) noexcept {
+                        const auto elements = (std::vector<kengine::DebugGraphicsComponent::Element> *) attribute;
+                        for (auto &element: *elements)
+                            mutateColor(element.color, mutator);
+                    }
                 }
+            }
         };
     }
 
     static void Window(kengine::Entity &e) {
         e += kengine::NameComponent{"Window"};
         e += kengine::WindowComponent{
-                .name = "Sandbox"
+            .name = "Sandbox"
         };
         e += kengine::CameraComponent{
-                .frustum = {
-                        .size = {16.f, 9.f, 0.f}
-                }
+            .frustum = {
+                .size = {16.f, 9.f, 0.f}
+            }
         };
         e += kengine::ViewportComponent{};
     }
