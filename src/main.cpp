@@ -46,13 +46,13 @@
 #include "data/ReproductionComponent.hpp"
 
 namespace {
-    static void mutateColor(putils::NormalizedColor &color, const meta::GenomeComponent::Mutator &mutator) noexcept {
+    void mutateColor(putils::NormalizedColor &color, const meta::GenomeComponent::Mutator &mutator) noexcept {
         putils::Color mutatable(toColor(color));
         mutator(&mutatable, sizeof(mutatable));
         color = toNormalizedColor(mutatable);
     }
 
-    static void setupGenome() noexcept {
+    void setupGenome() noexcept {
         using kengine::typeHelper::getTypeEntity;
 
         getTypeEntity<kengine::GraphicsComponent>() += meta::GenomeComponent{
@@ -83,7 +83,7 @@ namespace {
         };
     }
 
-    static void Window(kengine::Entity &e) {
+    void Window(kengine::Entity &e) {
         e += kengine::NameComponent{"Window"};
         e += kengine::WindowComponent{
             .name = "Sandbox"
