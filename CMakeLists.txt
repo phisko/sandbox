@@ -36,8 +36,8 @@ add_custom_command(TARGET ${exe_name} POST_BUILD COMMAND ${CMAKE_COMMAND} -E
 # Kengine
 #
 
-set(KENGINE_BUILD_TESTS TRUE)
-set(KENGINE_ALL_SYSTEMS TRUE)
+set(KENGINE_TESTS ON)
+set(KENGINE_ALL_SYSTEMS ON)
 add_subdirectory(kengine)
 #
 # API

@@ -59,8 +59,7 @@ namespace {
             .attributes = {
                 {
                     .name = "color",
-                    .mutate = [](void *attribute, size_t size,
-                                 const meta::GenomeComponent::Mutator &mutator) noexcept {
+                    .mutate = [](void *attribute, size_t size, const meta::GenomeComponent::Mutator &mutator) noexcept {
                         const auto color = (putils::NormalizedColor *) attribute;
                         mutateColor(*color, mutator);
                     }
@@ -72,8 +71,7 @@ namespace {
             .attributes = {
                 {
                     .name = "elements",
-                    .mutate = [](void *attribute, size_t size,
-                                 const meta::GenomeComponent::Mutator &mutator) noexcept {
+                    .mutate = [](void *attribute, size_t size, const meta::GenomeComponent::Mutator &mutator) noexcept {
                         const auto elements = (std::vector<kengine::DebugGraphicsComponent::Element> *) attribute;
                         for (auto &element: *elements)
                             mutateColor(element.color, mutator);
